@@ -1,5 +1,10 @@
-import requests
+from flask import Flask, jsonify
+from apscheduler.schedulers.background import BackgroundScheduler
 from bs4 import BeautifulSoup
+import requests
+
+app = Flask(__name__)
+lopp_data_cache = []
 
 def scrape_tavlingar():
     urls = [
@@ -14,9 +19,8 @@ def scrape_tavlingar():
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
 
-            # Anpassa parsningen beroende på webbplatsens struktur
             if "svenskgalopp" in url:
-                events = soup.find_all('div', class_='event-item')  # Exempelklass
+                events = soup.find_all('div', class_='event-item')
                 for event in events:
                     namn = event.find('h3').get_text(strip=True)
                     datum = event.find('time').get_text(strip=True)
@@ -29,7 +33,7 @@ def scrape_tavlingar():
                         "distans": distans
                     })
             elif "svenskalopp" in url:
-                events = soup.find_all('div', class_='race-item')  # Exempelklass
+                events = soup.find_all('div', class_='race-item')
                 for event in events:
                     namn = event.find('h2').get_text(strip=True)
                     datum = event.find('time').get_text(strip=True)
@@ -46,4 +50,19 @@ def scrape_tavlingar():
             continue
 
     return lopp_data
+
+def update_lopp_data():
+    global lopp_data_cache
+    lopp_data_cache = scrape_tavlingar()
+
+@app.route("/lopplista", methods=["GET"])
+def get_lopplista():
+    return jsonify(lopp_data_cache)
+
+if __name__ == "__main__":
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=update_lopp_data, trigger="interval", hours=6)
+    scheduler.start()
+    update_lopp_data()  # Hämta första datan direkt
+    app.run(debug=True)
 
