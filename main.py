@@ -1,42 +1,24 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import json
-from datetime import datetime
 
 app = FastAPI()
 
+# CORS (Cross-Origin Resource Sharing) – gör att frontend kan prata med backend även om de körs på olika domäner
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Här tillåter vi alla domäner att hämta data (kan justeras för ökad säkerhet)
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-with open("backend/loppen.json", "r", encoding="utf-8") as f:
-    ALLA_LOPP = json.load(f)
+# Lista av tävlingar (denna skulle kunna komma från en databas istället)
+lopplista = [
+    {"namn": "Göteborgsvarvet", "datum": "2025-05-17", "plats": "Göteborg", "distans": "21 km"},
+    {"namn": "Stockholm Marathon", "datum": "2025-06-01", "plats": "Stockholm", "distans": "42 km"},
+    {"namn": "Lidingöloppet", "datum": "2025-09-27", "plats": "Lidingö", "distans": "30 km"}
+]
 
-@app.get("/")
-def list_lopp(
-    lan: str = Query(None),
-    distans: str = Query(None),
-    datum_fran: str = Query(None),
-    datum_till: str = Query(None)
-):
-    resultat = ALLA_LOPP
-
-    if lan:
-        resultat = [l for l in resultat if lan.lower() in l["plats"].lower()]
-
-    if distans:
-        resultat = [l for l in resultat if distans.lower() in l["distans"].lower()]
-
-    if datum_fran:
-        df = datetime.strptime(datum_fran, "%Y-%m-%d")
-        resultat = [l for l in resultat if datetime.strptime(l["datum"], "%Y-%m-%d") >= df]
-
-    if datum_till:
-        dt = datetime.strptime(datum_till, "%Y-%m-%d")
-        resultat = [l for l in resultat if datetime.strptime(l["datum"], "%Y-%m-%d") <= dt]
-
-    return resultat
+# Endpunkt som returnerar listan av lopp
+@app.get("/lopplista")
+def get_lopp():
+    return lopplista  # Denna rad returnerar datan som frontend kan använd
