@@ -1,3 +1,10 @@
+from flask import Flask, jsonify
+from bs4 import BeautifulSoup
+from apscheduler.schedulers.background import BackgroundScheduler
+
+app = Flask(__name__)
+
+# Dummy scraping-funktion (kan bytas till riktig senare)
 def scrape_tavlingar():
     html = '''
     <div class="race-item">
@@ -24,4 +31,21 @@ def scrape_tavlingar():
         })
 
     return lopp_data
+
+@app.route("/lopplista", methods=["GET"])
+def get_lopplista():
+    lopp_data = scrape_tavlingar()
+    return jsonify(lopp_data)
+
+def schedule_scraping():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=scrape_tavlingar, trigger="interval", hours=6)
+    scheduler.start()
+
+# Detta körs oavsett om du kör via `gunicorn main:app` eller `python main.py`
+schedule_scraping()
+
+# Endast vid lokal utveckling
+if __name__ == "__main__":
+    app.run(debug=True)
 
