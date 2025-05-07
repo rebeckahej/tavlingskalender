@@ -8,9 +8,6 @@ lopp_data_cache = []
 
 def scrape_tavlingar():
     urls = [
-        "https://www.marathon.se/racetimer-resultat",
-        "https://www.svenskalopp.se/",
-        "https://www.jogg.se/kalender/tavlingar.aspx",
         "https://loparkalendern.se/"
     ]
     lopp_data = []
