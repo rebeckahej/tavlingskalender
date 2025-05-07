@@ -6,7 +6,7 @@ const HomePage = () => {
 
   useEffect(() => {
     // Här kan du anropa ditt API för att hämta tävlingar
-    fetch('https://tavlingskalender.onrender.com') // Eller din URL för att hämta tävlingar
+    fetch('https://tavlingskalender.onrender.com/tavlingskalender') // Eller din URL för att hämta tävlingar
       .then((response) => response.json())
       .then((data) => setLopp(data));
   }, []);
