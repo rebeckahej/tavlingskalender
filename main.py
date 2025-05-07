@@ -16,7 +16,7 @@ app.add_middleware(
 with open("backend/loppen.json", "r", encoding="utf-8") as f:
     ALLA_LOPP = json.load(f)
 
-@app.get("/lopp")
+@app.get("/")
 def list_lopp(
     lan: str = Query(None),
     distans: str = Query(None),
