@@ -1,5 +1,3 @@
-pip install requests beautifulsoup4 flask apscheduler
-
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify
